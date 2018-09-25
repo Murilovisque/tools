@@ -22,7 +22,6 @@ echo "Next version: $NEXT_VERSION"
 
 mvn clean -f $1
 mvn versions:set -f $1 -DremoveSnapshot
-mvn versions:set -f $1 -DnewVersion=$RELEASE_VERSION
 
 (cd $1; git add pom.xml)
 (cd $1; git commit -m "Release version $RELEASE_VERSION")
