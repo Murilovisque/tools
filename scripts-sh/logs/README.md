@@ -8,7 +8,7 @@ A small lib with some functions to facilitate the logging process. Bellow an exa
 
 
 # import log lib
-. ${HOME}/projects/repos/github/tools/scripts-sh/logs/logs.sh
+. /home/vareta/projects/repos/github/tools/scripts-sh/logs/logs.sh
 
 # variables
 background_jobs=()
@@ -43,7 +43,44 @@ log_error 'errou'
 trace_id=$(generate_trace_id)
 log_info 'trace' "${trace_id}"
 
+
+## log and echo
+ls /tmp &> /dev/null
+if is_ok_code_logs $? "Success with status $? - test case 1"; then
+    echo 'confirm ok, must show - test case 1'
+fi
+
+ls /cf034fvfgj234uLjDjcFdf &> /dev/null
+if is_fail_code_logs $? "Failed with status $? - test case 1"; then
+    echo 'confirm failed, must show - test case 1'
+fi
+
+## not log and not echo
+ls /cf034fvfgj234uLjDjcFdf &> /dev/null
+if is_ok_code_logs $? "Not log success $? - test case 2"; then
+    echo 'should fail, not show - test case 2'
+fi
+
+ls /tmp &> /dev/null
+if is_fail_code_logs $? "Not log fail $? - test case 2"; then
+    echo 'should works, not show - test case 2'
+fi
+
+## test both
+ls /tmp &> /dev/null
+if is_ok_else_fail_logs_both $? "Success with $? - test case 3" "Not log fail $? - test case 3"; then
+    echo 'should works, must show - test case 3'
+else
+    echo 'should not failed, not show - test case 3'
+fi
+
+ls /cf034fvfgj234uLjDjcFdf &> /dev/null
+if is_ok_else_fail_logs_both $? "Success with $? - test case 4" "Not log fail $? - test case 4"; then
+    echo 'should not works, not show - test case 4'
+else
+    echo 'should failed, must show - test case 4'
+fi
+
 sleep 10 # make um Ctrl+C to test trap function
-cleanup
 
 ```

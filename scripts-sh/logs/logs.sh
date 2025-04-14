@@ -47,6 +47,40 @@ function log_error() {
     _write_log 'ERROR' "${msg}" "${trace_id}"
 }
 
+function is_ok_code_logs()  {
+    local code=$1
+    local msg=$2
+    local trace_id=$3
+    if [[ ${code} -eq 0 ]]; then
+        log_info "${msg}" "${trace_id}"
+    fi
+    return ${code}
+}
+
+function is_fail_code_logs()  {
+    local code=$1
+    local msg=$2
+    local trace_id=$3
+    if [[ ${code} -ne 0 ]]; then
+        log_error "${msg}" "${trace_id}"
+        return 0
+    fi
+    return 1
+}
+
+function is_ok_else_fail_logs_both() {
+    local code=$1
+    local msg_ok=$2
+    local msg_fail=$3
+    local trace_id=$4
+    if [[ ${code} -eq 0 ]]; then
+        log_info "${msg_ok}" "${trace_id}"
+    else
+        log_error "${msg_fail}" "${trace_id}"
+    fi
+    return ${code}
+}
+
 function start_log_rotation() {
     local days_retation=$1
     if [[ ! "${days_retation}" =~ ^[0-9]+$ ]] || [[ "${days_retation}" -le 0 ]]; then
@@ -70,9 +104,9 @@ function setup_logs() {
     if [[ -d "${LOGS_DIR}" ]] && [[ ! -z "${LOG_NAME}" ]]; then
         LOG_PATH="${LOGS_DIR}/${LOG_NAME}"
         echo 'test log permission' > ${LOG_PATH}
-        if [[ $? != 0 ]]; then
+        if [[ $? -ne 0 ]]; then
             echo "writing log failed: ${LOG_PATH}"
-            exit 1
+            return 1
         else
             rm -f ${LOG_PATH}
         fi
@@ -87,5 +121,6 @@ function setup_logs() {
         echo 'logger setup to stdout'
         _func_get_log_path='_get_log_stdout'
     fi
+    return 0
 }
 
