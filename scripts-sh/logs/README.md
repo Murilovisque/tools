@@ -8,7 +8,7 @@ A small lib with some functions to facilitate the logging process. Bellow an exa
 
 
 # import log lib
-. /home/vareta/projects/repos/github/tools/scripts-sh/logs/logs.sh
+. ${HOME}/projects/repos/github/tools/scripts-sh/logs/logs.sh
 
 # variables
 background_jobs=()
