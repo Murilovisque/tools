@@ -30,10 +30,10 @@ cleanup() {
 trap cleanup SIGINT SIGTERM EXIT
 
 # setup logger
-export LOGS_DIR=/tmp/testes/logs
-export LOG_NAME='testador'
-mkdir -p ${LOGS_DIR}
-setup_logs
+export LOGS_LIB_LOG_FOLDER=/tmp/testes/logs
+export LOGS_LIB_LOG_NAME='testador'
+mkdir -p ${LOGS_LIB_LOG_FOLDER}
+setup_logger
 start_log_rotation 30 &
 background_jobs+=("$!")
 
