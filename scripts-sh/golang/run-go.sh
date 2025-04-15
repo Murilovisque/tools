@@ -17,7 +17,7 @@ function run_go() {
 	echo "running '${OUTPUT_EXE} $*'"
 	${OUTPUT_EXE} $* &
 	PID_GO=$!
-	echo "PID GO ${PID_GO}"
+	echo "golang app pid ${PID_GO}"
 	sleep 2
 }
 
@@ -31,7 +31,7 @@ fi
 
 PROJECT_FOLDER=$(pwd)
 if [[ ! -d ${PROJECT_FOLDER} ]]; then
-	echo "Pasta inválida"
+	echo "invalid project folder"
 	exit 1
 fi
 
