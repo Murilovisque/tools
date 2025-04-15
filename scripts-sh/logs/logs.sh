@@ -100,8 +100,8 @@ function start_log_rotation() {
 
 ## call 'setup' before use the another public functions
 
-function setup_logs() {
-    if [[ -d "${LOGS_DIR}" ]] && [[ ! -z "${LOG_NAME}" ]]; then
+function setup_logger() {
+    if [[ -d "${LOGS_DIR}" ]] && [[ -n "${LOG_NAME}" ]]; then
         LOG_PATH="${LOGS_DIR}/${LOG_NAME}"
         echo 'test log permission' > ${LOG_PATH}
         if [[ $? -ne 0 ]]; then
