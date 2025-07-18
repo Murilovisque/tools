@@ -8,13 +8,15 @@ _LOGS_LIB_GET_LOG_PATH_FUNC=""
 ### private functions
 
 function _get_log_by_day() {
-    local dt_log=$(date '+%Y%m%d')
-    printf "${_LOGS_LIB_LOG_PATH}-${dt_log}.log"
+    local dt_log
+    dt_log="$(date '+%Y%m%d')"
+    printf "%s-%s.log" "${_LOGS_LIB_LOG_PATH}" "${dt_log}"
 }
 
 function _get_log_by_hour() {
-    local dt_log=$(date '+%Y%m%d-%H')
-    printf "${_LOGS_LIB_LOG_PATH}-${dt_log}.log"
+    local dt_log
+    dt_log="$(date '+%Y%m%d-%H')"
+    printf "%s-%s.log" "${_LOGS_LIB_LOG_PATH}" "${dt_log}"
 }
 
 function _get_log_stdout() {
@@ -25,12 +27,14 @@ function _write_log() {
     local level="$1"
     local msg="$2"
     local trace_id="$3"
-    local dt=$(date '+%Y/%m/%d %H:%M:%S')
-    local log_target=$(${_LOGS_LIB_GET_LOG_PATH_FUNC})
+    local dt_log
+    dt_log=$(date '+%Y/%m/%d %H:%M:%S')
+    local log_target
+    log_target=$(${_LOGS_LIB_GET_LOG_PATH_FUNC})
     if [[ -z "${trace_id}" ]]; then
-        printf "%s %s %s\n" "${dt}" "${level}" "${msg}" >> ${log_target}
+        printf "%s %s %s\n" "${dt_log}" "${level}" "${msg}" >> "${log_target}"
     else
-        printf "%s %s [traceid: %s] %s\n" "${dt}" "${level}" "${trace_id}" "${msg}" >> ${log_target}
+        printf "%s %s [traceid: %s] %s\n" "${dt_log}" "${level}" "${trace_id}" "${msg}" >> "${log_target}"
     fi
 }
 
@@ -58,7 +62,7 @@ function log_error_and_exit() {
     local msg="$1"
     local trace_id="$2"
     log_error "${msg}" "${trace_id}"
-    exit "$?"
+    exit 1
 }
 
 function is_code_ok_logs() {
@@ -123,7 +127,7 @@ function if_code_ok_logs_else_logs_and_exit() {
 function start_log_rotation() {
     local log_retention_days="$1"
     if [[ ! "${log_retention_days}" =~ ^[0-9]+$ ]] || [[ "${log_retention_days}" -le 0 ]]; then
-        printf "invalid retation days parameter: ${log_retention_days}\n"
+        printf "invalid retation days parameter: %s\n" "${log_retention_days}"
         return 1
     fi
     if [[ ! -d "${_LOGS_LIB_LOG_FOLDER}" ]] || [[ -z "${_LOGS_LIB_LOG_NAME}" ]]; then
@@ -147,12 +151,11 @@ function setup_logger() {
         _LOGS_LIB_LOG_FOLDER="${log_folder}"
         _LOGS_LIB_LOG_NAME="${log_name}"
         _LOGS_LIB_LOG_PATH="${_LOGS_LIB_LOG_FOLDER}/${_LOGS_LIB_LOG_NAME}"
-        touch "${_LOGS_LIB_LOG_PATH}.test"
-        if [[ "$?" -ne 0 ]]; then
-            printf "writing log failed: ${_LOGS_LIB_LOG_PATH}\n"
-            return 1
-        else
+        if touch "${_LOGS_LIB_LOG_PATH}.test"; then
             rm -f "${_LOGS_LIB_LOG_PATH}.test"
+        else
+            printf "writing log failed: %s\n" "${_LOGS_LIB_LOG_PATH}"
+            return 1
         fi        
         if [[ "${log_rotation}" == "hour" ]]; then
             printf 'logger setup to file by hour\n'
