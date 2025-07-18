@@ -30,10 +30,10 @@ cleanup() {
 trap cleanup SIGINT SIGTERM EXIT
 
 # setup logger
-export LOGS_LIB_LOG_FOLDER=/tmp/testes/logs
-export LOGS_LIB_LOG_NAME='testador'
+foder_logs="/tmp/testes/logs"
+log_name='testador'
 mkdir -p ${LOGS_LIB_LOG_FOLDER}
-setup_logger
+setup_logger "${foder_logs}" "${log_name}" 'hour'
 start_log_rotation 30 &
 background_jobs+=("$!")
 
@@ -46,36 +46,36 @@ log_info 'trace' "${trace_id}"
 
 ## log and echo
 ls /tmp &> /dev/null
-if is_ok_code_logs $? "Success with status $? - test case 1"; then
+if is_code_ok_logs $? "Success with status $? - test case 1"; then
     echo 'confirm ok, must show - test case 1'
 fi
 
 ls /cf034fvfgj234uLjDjcFdf &> /dev/null
-if is_fail_code_logs $? "Failed with status $? - test case 1"; then
+if is_code_failed_logs $? "Failed with status $? - test case 1"; then
     echo 'confirm failed, must show - test case 1'
 fi
 
 ## not log and not echo
 ls /cf034fvfgj234uLjDjcFdf &> /dev/null
-if is_ok_code_logs $? "Not log success $? - test case 2"; then
+if is_code_ok_logs $? "Not log success $? - test case 2"; then
     echo 'should fail, not show - test case 2'
 fi
 
 ls /tmp &> /dev/null
-if is_fail_code_logs $? "Not log fail $? - test case 2"; then
+if is_code_failed_logs $? "Not log fail $? - test case 2"; then
     echo 'should works, not show - test case 2'
 fi
 
 ## test both
 ls /tmp &> /dev/null
-if is_ok_else_fail_logs_both $? "Success with $? - test case 3" "Not log fail $? - test case 3"; then
+if is_code_ok_or_failed_logs $? "Success with $? - test case 3" "Not log fail $? - test case 3"; then
     echo 'should works, must show - test case 3'
 else
     echo 'should not failed, not show - test case 3'
 fi
 
 ls /cf034fvfgj234uLjDjcFdf &> /dev/null
-if is_ok_else_fail_logs_both $? "Success with $? - test case 4" "Not log fail $? - test case 4"; then
+if is_code_ok_or_failed_logs $? "Success with $? - test case 4" "Not log fail $? - test case 4"; then
     echo 'should not works, not show - test case 4'
 else
     echo 'should failed, must show - test case 4'
