@@ -26,7 +26,7 @@ function _get_log_stdout() {
 function _write_log() {
     local level="$1"
     local msg="$2"
-    local trace_id="$3"
+    local trace_id="${3:-}"
     local dt_log
     dt_log=$(date '+%Y/%m/%d %H:%M:%S')
     local log_target
@@ -46,21 +46,21 @@ function generate_trace_id() {
 
 function log_info() {
     local msg="$1"
-    local trace_id="$2"
+    local trace_id="${2:-}"
     _write_log 'INFO' "${msg}" "${trace_id}"
     return 0
 }
 
 function log_error() {
     local msg="$1"
-    local trace_id="$2"
+    local trace_id="${2:-}"
     _write_log 'ERROR' "${msg}" "${trace_id}"
     return 1
 }
 
 function log_error_and_exit() {
     local msg="$1"
-    local trace_id="$2"
+    local trace_id="${2:-}"
     log_error "${msg}" "${trace_id}"
     exit 1
 }
@@ -68,7 +68,7 @@ function log_error_and_exit() {
 function is_code_ok_logs() {
     local code="$1"
     local msg="$2"
-    local trace_id="$3"
+    local trace_id="${3:-}"
     if [[ "${code}" -eq 0 ]]; then
         log_info "${msg}" "${trace_id}"
     fi
@@ -78,7 +78,7 @@ function is_code_ok_logs() {
 function is_code_failed_logs() {
     local code="$1"
     local msg="$2"
-    local trace_id="$3"
+    local trace_id="${3:-}"
     if [[ "${code}" -ne 0 ]]; then
         log_error "${msg}" "${trace_id}"
         return 0
@@ -86,11 +86,22 @@ function is_code_failed_logs() {
     return 1
 }
 
+function is_code_failed_logs_and_exit() {
+    local code="$1"
+    local msg="$2"
+    local trace_id="${3:-}"
+    if [[ "${code}" -ne 0 ]]; then
+        log_error "${msg}" "${trace_id}"
+        exit "${code}"
+    fi
+    return "${code}"
+}
+
 function is_code_ok_or_failed_logs() {
     local code="$1"
     local msg_ok="$2"
     local msg_fail="$3"
-    local trace_id="$4"
+    local trace_id="${4:-}"
     if [[ "${code}" -eq 0 ]]; then
         log_info "${msg_ok}" "${trace_id}"
     else
@@ -99,22 +110,11 @@ function is_code_ok_or_failed_logs() {
     return "${code}"
 }
 
-function if_code_failed_logs_and_exit() {
-    local code="$1"
-    local msg="$2"
-    local trace_id="$3"
-    if [[ "${code}" -ne 0 ]]; then
-        log_error "${msg}" "${trace_id}"
-        exit "${code}"
-    fi
-    return "${code}"
-}
-
-function if_code_ok_logs_else_logs_and_exit() {
+function is_code_ok_logs_or_logs_and_exit() {
     local code="$1"
     local msg_ok="$2"
     local msg_fail="$3"
-    local trace_id="$4"
+    local trace_id="${4:-}"
     if [[ "${code}" -eq 0 ]]; then
         log_info "${msg_ok}" "${trace_id}"
         return 0
